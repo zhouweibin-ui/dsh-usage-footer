@@ -26,7 +26,8 @@ window.__ModuleLoader__.load({
 		const POLL_INTERVAL_MS = 60_000;
 		const CLOCK_TICK_MS = 30_000;
 		const STALE_MS = 45_000;
-		const TODAY_KEY = "dsh-usage-footer.today.v1";
+		const TODAY_KEY = "dsh-usage-footer.today.v2";
+	const TODAY_KEY_V1 = "dsh-usage-footer.today.v1";
 		// DeepSeek peak/off-peak pricing, CNY per million tokens, effective 2026-08-17.
 		// Peak hours (Beijing time): 09:00-12:00, 14:00-18:00.
 		const PRICING = {
@@ -39,7 +40,11 @@ window.__ModuleLoader__.load({
 				peak: { hit: 0.1, miss: 3.0, output: 9.0 }
 			}
 		};
-		const PEAK_HOURS = new Set([9, 10, 11, 14, 15, 16, 17]);
+		/** Resolve one model id to its price table; unknown ids fall back to v4-pro. */
+	function priceOf(modelId) {
+		return PRICING[modelId] ?? PRICING["deepseek-v4-pro"];
+	}
+	const PEAK_HOURS = new Set([9, 10, 11, 14, 15, 16, 17]);
 		const CURRENCY_SYMBOLS = { CNY: "¥", USD: "$", EUR: "€" };
 		function formatTokens(n) {
 			if (n >= 1e6) return trimZeros(n / 1e6, 1) + "M";
@@ -66,16 +71,16 @@ window.__ModuleLoader__.load({
 		function totalTokens(usage) {
 			return usage.uncachedInputTokens + usage.cacheReadTokens + usage.cacheWriteTokens + usage.outputTokens;
 		}
-		function costEstimate(usage) {
-			const price = PRICING["deepseek-v4-pro"];
+		function costEstimate(usage, modelId) {
+			const price = priceOf(modelId);
 			const read = usage.cacheReadTokens;
 			const miss = usage.uncachedInputTokens + usage.cacheWriteTokens;
 			const out = usage.outputTokens;
 			const at = (bracket) => (read * bracket.hit + miss * bracket.miss + out * bracket.output) / 1e6;
 			return { offPeak: at(price.offPeak), peak: at(price.peak) };
 		}
-		function costOfBuckets(buckets) {
-			const price = PRICING["deepseek-v4-pro"];
+		function costOfBuckets(buckets, modelId) {
+			const price = priceOf(modelId);
 			const read = buckets.cacheRead;
 			const miss = buckets.uncached + buckets.cacheWrite;
 			const out = buckets.output;
@@ -139,9 +144,22 @@ window.__ModuleLoader__.load({
 		function readTodayRecord() {
 			try {
 				const raw = window.localStorage.getItem(TODAY_KEY);
-				if (raw === null) return null;
-				const parsed = JSON.parse(raw);
-				if (parsed !== null && typeof parsed === "object" && parsed.date === localDayKey()) return parsed;
+				if (raw !== null) {
+					const parsed = JSON.parse(raw);
+					if (parsed !== null && typeof parsed === "object" && parsed.date === localDayKey()) return parsed;
+				}
+				// v1 migration: the legacy flat record carries no model identity,
+				// so its tokens are priced as v4-pro.
+				const legacy = window.localStorage.getItem(TODAY_KEY_V1);
+				if (legacy !== null) {
+					const parsed = JSON.parse(legacy);
+					if (parsed !== null && typeof parsed === "object" && parsed.date === localDayKey()) {
+						const migrated = { date: parsed.date, models: { "deepseek-v4-pro": todayBucketsOf(parsed) } };
+						writeTodayRecord(migrated);
+						window.localStorage.removeItem(TODAY_KEY_V1);
+						return migrated;
+					}
+				}
 			} catch {}
 			return null;
 		}
@@ -151,8 +169,9 @@ window.__ModuleLoader__.load({
 			} catch {}
 		}
 		function emptyTodayRecord() {
-			return { date: localDayKey(), uncached: 0, cacheRead: 0, cacheWrite: 0, output: 0 };
+			return { date: localDayKey(), models: {} };
 		}
+		/** One model's token buckets, zero-filled when absent. */
 		function todayBucketsOf(record) {
 			if (record === null) return { uncached: 0, cacheRead: 0, cacheWrite: 0, output: 0 };
 			return {
@@ -162,16 +181,41 @@ window.__ModuleLoader__.load({
 				output: typeof record.output === "number" ? record.output : 0
 			};
 		}
+		/** Per-model bucket map of today's record (empty when the record is absent). */
+		function todayModelsOf(record) {
+			if (record === null || record.models === null || typeof record.models !== "object") return {};
+			return record.models;
+		}
+		/** Sum tokens across every model in today's record. */
+		function todayTokensOf(record) {
+			let total = 0;
+			for (const buckets of Object.values(todayModelsOf(record))) {
+				total += buckets.uncached + buckets.cacheRead + buckets.cacheWrite + buckets.output;
+			}
+			return total;
+		}
+		/** Today's cost estimate: each model's buckets times that model's price table. */
+		function todayCostOf(record) {
+			let offPeak = 0;
+			let peak = 0;
+			for (const [modelId, buckets] of Object.entries(todayModelsOf(record))) {
+				const cost = costOfBuckets(buckets, modelId);
+				offPeak += cost.offPeak;
+				peak += cost.peak;
+			}
+			return { offPeak, peak };
+		}
 				/** Composer-dock billing row: one compact line under the session stats. */
 		function UsageWidget(props) {
-			const { useProjection, useEnabled, t, sessionId } = props;
+			const { useProjection, useEnabled, useModelDirectory, t, sessionId } = props;
 			const usage = typeof useProjection === "function" ? useProjection("tokenUsage") : undefined;
 			const enabled = useEnabled((value) => value);
+			const modelId = useModelDirectory((state) => state.current !== null && state.current !== undefined ? state.current.model : null) ?? null;
 			const [status, setStatus] = react.useState(null);
 			const [open, setOpen] = react.useState(false);
 			const [pinned, setPinned] = react.useState(false);
 			const [now, setNow] = react.useState(() => Date.now());
-			const [today, setToday] = react.useState(() => todayBucketsOf(readTodayRecord()));
+			const [today, setToday] = react.useState(() => readTodayRecord());
 			const lastFetchAt = react.useRef(0);
 			const lastUsage = react.useRef(null);
 			const hoverTimer = react.useRef(null);
@@ -196,15 +240,15 @@ window.__ModuleLoader__.load({
 					clearInterval(tick);
 				};
 			}, [refresh, enabled]);
-			// Accumulate today's locally observed usage (per-session deltas,
-			// persisted per local day; a new day resets the record).
+			// Accumulate today's locally observed usage per model (per-session
+			// deltas, persisted per local day; a new day resets the record).
 			react.useEffect(() => {
 				if (!enabled || usage === undefined) return;
 				const record = readTodayRecord() ?? emptyTodayRecord();
 				const last = lastUsage.current;
 				if (last === null || last.sessionId !== sessionId) {
 					lastUsage.current = { sessionId, usage };
-					setToday(todayBucketsOf(record));
+					setToday(record);
 					return;
 				}
 				let changed = false;
@@ -214,18 +258,20 @@ window.__ModuleLoader__.load({
 					cacheWrite: usage.cacheWriteTokens - last.usage.cacheWriteTokens,
 					output: usage.outputTokens - last.usage.outputTokens
 				};
+				const key = modelId ?? "deepseek-v4-pro";
+				const bucket = record.models[key] ?? (record.models[key] = todayBucketsOf(null));
 				for (const slot of ["uncached", "cacheRead", "cacheWrite", "output"]) {
 					if (deltas[slot] > 0) {
-						record[slot] += deltas[slot];
+						bucket[slot] += deltas[slot];
 						changed = true;
 					}
 				}
 				lastUsage.current = { sessionId, usage };
 				if (changed) {
 					writeTodayRecord(record);
-					setToday(todayBucketsOf(record));
+					setToday(record);
 				}
-			}, [usage, enabled, sessionId]);
+			}, [usage, enabled, sessionId, modelId]);
 			// Hover-open with grace timers; click pins until outside click.
 			const clearTimers = () => {
 				if (hoverTimer.current !== null) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
@@ -278,9 +324,9 @@ window.__ModuleLoader__.load({
 			const balanceUnavailable = status === null || status?.failed === true || status?.disabled === true;
 			const bracket = balanceUnavailable && status !== null ? "error" : facts.isPeak ? "peak" : "idle";
 			const total = usage !== undefined ? totalTokens(usage) : 0;
-			const estimate = usage !== undefined && total > 0 ? costEstimate(usage) : null;
-			const todayTotal = today.uncached + today.cacheRead + today.cacheWrite + today.output;
-			const todayCost = todayTotal > 0 ? costOfBuckets(today) : { offPeak: 0, peak: 0 };
+			const estimate = usage !== undefined && total > 0 ? costEstimate(usage, modelId) : null;
+			const todayTotal = todayTokensOf(today);
+			const todayCost = todayTotal > 0 ? todayCostOf(today) : { offPeak: 0, peak: 0 };
 			const todaySpend = status !== null && status.todaySpend !== null && typeof status.todaySpend?.amount === "number"
 				? status.todaySpend
 				: null;
@@ -373,7 +419,7 @@ window.__ModuleLoader__.load({
 								jsx("div", { className: "uW_costCellValue", children: "¥" + formatMoney(estimate.peak) })
 							] })
 						] }),
-						jsx("div", { className: "uW_costNote", children: t("panel.costNote") })
+						jsx("div", { className: "uW_costNote", children: t("panel.costNote", { model: modelId ?? "deepseek-v4-pro" }) })
 					] }),
 					(monthTokens !== undefined || monthCost !== undefined) && jsxs(Fragment, { children: [
 						jsx("div", { className: "uW_sectionLabel", children: t("panel.month") }),
@@ -512,10 +558,10 @@ window.__ModuleLoader__.load({
 			"panel.todayLocal": "本机今日用量（token 统计）",
 			"panel.todayTokens": "{total} token",
 			"panel.todayCost": "空闲 ≈ ¥{off} · 高峰 ¥{peak}",
-			"panel.todayNote": "本机观测统计（非官方账单）：按会话去重累计本机今日产生的 token，金额按峰谷价目估算；跨浏览器/未打开页面的用量不计入",
+			"panel.todayNote": "本机观测统计（非官方账单）：按会话去重累计本机今日产生的 token，金额按各模型峰谷价目估算；跨浏览器/未打开页面的用量不计入",
 			"panel.costOff": "本会话 · 空闲",
 			"panel.costPeak": "本会话 · 高峰",
-			"panel.costNote": "按 deepseek-v4-pro 峰谷价目估算（2026-08-17 起）",
+			"panel.costNote": "按 {model} 峰谷价目估算（2026-08-17 起）",
 			"panel.month": "本月账户用量",
 			"panel.updated": "{time} 更新 · 点击刷新",
 			"panel.loading": "查询中…",
@@ -552,10 +598,10 @@ window.__ModuleLoader__.load({
 			"panel.todayLocal": "Today's usage (local tokens)",
 			"panel.todayTokens": "{total} tokens",
 			"panel.todayCost": "Off-peak ≈ ¥{off} · Peak ¥{peak}",
-			"panel.todayNote": "Locally observed tokens (not the official bill): session-deduplicated usage produced on this machine today, priced with the peak/off-peak table; usage while no page was open is not counted",
+			"panel.todayNote": "Locally observed tokens (not the official bill): session-deduplicated usage produced on this machine today, priced with each model's peak/off-peak table; usage while no page was open is not counted",
 			"panel.costOff": "This session · off-peak",
 			"panel.costPeak": "This session · peak",
-			"panel.costNote": "Estimated from deepseek-v4-pro peak/off-peak pricing (since 2026-08-17)",
+			"panel.costNote": "Estimated from {model} peak/off-peak pricing (since 2026-08-17)",
 			"panel.month": "This month",
 			"panel.updated": "Updated {time} · click to refresh",
 			"panel.loading": "Loading…",
@@ -571,7 +617,7 @@ window.__ModuleLoader__.load({
 			"line.idle": "Off-peak · peak {time}"
 		};
 		/** Services required by the usage-footer plugin. */
-		const inject = ["slots", "locale", "settingsScope", "connection", "remote"];
+		const inject = ["slots", "locale", "settingsScope", "connection", "remote", "modelDirectories"];
 		const STORAGE_KEY = "dsh-usage-footer.enabled";
 		/** Per-browser fallback persistence: works before the host registers the settings namespace. */
 		function readLocalEnabled() {
@@ -588,6 +634,7 @@ window.__ModuleLoader__.load({
 			} catch {}
 		}
 		function apply(ctx) {
+			const models = ctx.modelDirectories;
 			ctx.effect(() => ctx.locale.register(NS, { zh, en }), "usage-footer: dictionaries");
 			// The user-facing on/off preference. An explicit user section in the
 			// `usage-footer` settings namespace (registered host-side by
@@ -616,7 +663,7 @@ window.__ModuleLoader__.load({
 				id: "usage-widget",
 				order: 10,
 				locale: NS,
-				inject: () => ({ hooks: { enabled: enabledStore } })
+				inject: (sessionId) => ({ hooks: { enabled: enabledStore, modelDirectory: models.directoryFor(sessionId).store } })
 			}, UsageWidget));
 			ctx.slots.inject("settings.general.item", () => ctx.slots.register({
 				name: "settings.general.item",
