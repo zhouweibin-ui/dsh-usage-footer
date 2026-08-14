@@ -1,19 +1,21 @@
 # dsh-usage-footer
 
+> 本仓库是 [1514100951/dsh-usage-footer](https://github.com/1514100951/dsh-usage-footer) 的 fork：浏览器端从「右下角悬浮金币按钮」改为「会话统计行下方的内嵌计费行」（余额 / 今日 / 本会话 / 峰谷时段），详情面板改为从计费行上方展开；其余功能与安装方式与原仓库一致。
+
 DSH Web 界面「用量与费用」插件（独立项目），包含两个包：
 
 | 包 | 角色 | 入口 |
 |---|---|---|
 | `dsh-usage-status` | 宿主插件：注册 `GET /usage-status` 路由（查询 DeepSeek 余额 API），并注册 `usage-footer` 设置命名空间作为开关门控 | `lib/index.js` |
-| `dsh-client-ui-usage-footer` | 浏览器插件：在页面右下角渲染一枚悬浮金币按钮，悬停/点击弹出用量面板；并在 **设置 → 通用** 增加「用量与费用栏」开关 | `lib/client.js`（自包含 bundle） |
+| `dsh-client-ui-usage-footer` | 浏览器插件：在会话统计行（`conversation.composer.dock`）下方渲染一行计费信息，悬停/点击弹出用量面板；并在 **设置 → 通用** 增加「用量与费用栏」开关 | `lib/client.js`（自包含 bundle） |
 
 ## 功能
 
 <img width="486" height="725" alt="84b8dcee67b5baaabca23bc1b62f87bf" src="https://github.com/user-attachments/assets/cec5e700-4afd-4d91-b42d-c1826e5f46cb" />
 
 
-- **悬浮按钮（右下角）**：悬浮圆钮（金币徽标），外环与角点颜色指示当前时段——绿=空闲、琥珀=高峰（呼吸动画）、红=余额查询失败
-- **悬停弹窗**（120ms 延迟出现、260ms 宽容关闭；点击可钉住，点外部/Esc 关闭；自按钮左上方展开）：
+- **计费行（会话统计行下方）**：内嵌一行计费信息——`● 余额 ¥xx | 今日 ¥xx | 本会话 ≈¥xx | 空闲/高峰 xx:xx 入高峰`，行首圆点指示当前时段——绿=空闲、琥珀=高峰（呼吸动画）、红=余额查询失败；样式与宿主会话统计行一致（居中、12px、`|` 分隔）
+- **悬停弹窗**（120ms 延迟出现、260ms 宽容关闭；点击可钉住，点外部/Esc 关闭；自计费行上方展开）：
   - **账户余额**：官方 API `GET https://api.deepseek.com/user/balance`（每 60 秒刷新，点击"更新"手动刷新），含充值/赠送拆分
   - **峰谷时段**：按北京时间实时判定高峰/空闲，显示当前时刻与下次切换时间，并附 24 小时峰谷条（高峰 9:00-12:00 / 14:00-18:00，当前小时高亮）
   - **本会话用量**：累计 token + 输入（未缓存）/缓存命中/缓存写入/输出 四项分条
@@ -64,7 +66,7 @@ macOS/Linux 同理，用 `ln -s` 链接到 `~/.dsh/profiles/node_modules/` 下�
       name: dsh-client-ui-usage-footer
 ```
 
-该文件被运行中的 `dsh web` 热监听，保存后宿主行自动挂载；随后**刷新浏览器页面**即可看到悬浮按钮。想完全卸载时，把这两行置 `disabled: true`。
+该文件被运行中的 `dsh web` 热监听，保存后宿主行自动挂载；随后**刷新浏览器页面**即可在会话统计行下方看到计费行。想完全卸载时，把这两行置 `disabled: true`。
 
 ## 修改后如何生效
 
