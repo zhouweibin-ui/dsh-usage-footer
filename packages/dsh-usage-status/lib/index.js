@@ -21,6 +21,13 @@
  *                                        // $DSH_HOME/<baseline file>
  *     usageAmount: <raw data> | null,    // platform endpoint, only when
  *     usageCost:   <raw data> | null,    // DEEPSEEK_PLATFORM_TOKEN is set
+ *     pricing: {                        // per-model peak/off-peak tables (CNY
+ *       "<model>": { offPeak: { hit,     // per 1M tokens), parsed from the
+ *         miss, output }, peak: { hit,   // official pricing page; null = the
+ *         miss, output } }               // client uses its built-in table
+ *     } | null,
+ *     pricingSource: "docs" | "builtin",  // where the served table came from
+ *     pricingFetchedAt: string | null,    // last successful docs sync (ISO)
  *     errors: string[]
  *   }
  *
@@ -41,6 +48,8 @@ import { homedir } from "node:os";
 const ROUTE_PATH = "/usage-status";
 const CACHE_TTL_MS = 30_000;
 const FETCH_TIMEOUT_MS = 8_000;
+const PRICING_DOC_URL = "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/";
+const PRICING_CACHE_TTL_MS = 12 * 3600e3;
 
 const API_KEY_REF = "DEEPSEEK_API_KEY";
 const PLATFORM_TOKEN_REF = "DEEPSEEK_PLATFORM_TOKEN";
@@ -153,6 +162,63 @@ function sendJson(res, code, value) {
   res.end(body);
 }
 
+/**
+ * Parse the peak/off-peak price table out of the official pricing page
+ * (api-docs.deepseek.com, server-rendered HTML). Unknown structure yields
+ * null so callers fall back to the built-in table.
+ * @param html - the pricing page HTML.
+ * @returns per-model price tables, or null when the table is unrecognizable.
+ */
+function parsePricing(html) {
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/g, " ")
+      .replace(/<style[\s\S]*?<\/style>/g, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ");
+    const pricing = {};
+    const pattern = /deepseek-v4-(flash|pro)\s*空闲时段\s*([\d.]+)元\s*([\d.]+)元\s*([\d.]+)元\s*高峰时段\s*([\d.]+)元\s*([\d.]+)元\s*([\d.]+)元/g;
+    for (const match of text.matchAll(pattern)) {
+      pricing[`deepseek-v4-${match[1]}`] = {
+        offPeak: { hit: Number(match[2]), miss: Number(match[3]), output: Number(match[4]) },
+        peak: { hit: Number(match[5]), miss: Number(match[6]), output: Number(match[7]) }
+      };
+    }
+    return Object.keys(pricing).length > 0 ? pricing : null;
+    }
+
+/** Module-level pricing cache: at=0 means never fetched. */
+const pricingCache = { at: 0, value: null, source: "builtin" };
+
+/**
+ * Refresh the official pricing table at most every PRICING_CACHE_TTL_MS.
+ * A failed or unrecognizable fetch keeps the previous value (or the
+ * built-in fallback) and never throws.
+ * @returns the pricing cache entry.
+ */
+async function fetchPricing() {
+    const now = Date.now();
+    if (pricingCache.at !== 0 && now - pricingCache.at < PRICING_CACHE_TTL_MS) return pricingCache;
+    pricingCache.at = now;
+    try {
+      const response = await fetch(PRICING_DOC_URL, {
+        headers: { accept: "text/html" },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+      });
+      if (response.ok) {
+        const parsed = parsePricing(await response.text());
+        if (parsed !== null) {
+          pricingCache.value = parsed;
+          pricingCache.source = "docs";
+        }
+      }
+    } catch {
+      /* docs unreachable: keep the previous table (or the built-in fallback) */
+    }
+    return pricingCache;
+    }
+
 /** Query DeepSeek for the account figures this route publishes. */
 async function queryUsageStatus(credentials, baselinePath) {
   const now = new Date();
@@ -163,6 +229,9 @@ async function queryUsageStatus(credentials, baselinePath) {
     todaySpend: null,
     usageAmount: null,
     usageCost: null,
+    pricing: null,
+    pricingSource: "builtin",
+    pricingFetchedAt: null,
     errors: []
   };
 
@@ -207,6 +276,10 @@ async function queryUsageStatus(credentials, baselinePath) {
     else result.errors.push("usage-cost-unavailable");
   }
 
+  const pricing = await fetchPricing();
+  result.pricing = pricing.value;
+  result.pricingSource = pricing.source;
+  result.pricingFetchedAt = pricing.at === 0 ? null : new Date(pricing.at).toISOString();
   return result;
 }
 
