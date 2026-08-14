@@ -27,6 +27,9 @@
  *         miss, output } }               // client uses its built-in table
  *     } | null,
  *     pricingSource: "docs" | "builtin",  // where the served table came from
+ *     pricingTable: "flat" | "peak" |     // the ACTIVE rate card (flat until
+ *       null,                             // the parsed switch date, peak after)
+ *     pricingEffective: string | null,    // peak/off-peak switch instant (ISO)
  *     pricingFetchedAt: string | null,    // last successful docs sync (ISO)
  *     errors: string[]
  *   }
@@ -177,19 +180,33 @@ function parsePricing(html) {
       .replace(/&nbsp;/g, " ")
       .replace(/&amp;/g, "&")
       .replace(/\s+/g, " ");
-    const pricing = {};
-    const pattern = /deepseek-v4-(flash|pro)\s*空闲时段\s*([\d.]+)元\s*([\d.]+)元\s*([\d.]+)元\s*高峰时段\s*([\d.]+)元\s*([\d.]+)元\s*([\d.]+)元/g;
-    for (const match of text.matchAll(pattern)) {
-      pricing[`deepseek-v4-${match[1]}`] = {
+    // Flat rate card (in effect until the peak/off-peak switch).
+    const flat = {};
+    const flatMatch = /百万tokens输入（缓存命中）\s*([\d.]+)元\s*([\d.]+)元\s*百万tokens输入（缓存未命中）\s*([\d.]+)元\s*([\d.]+)元\s*百万tokens输出\s*([\d.]+)元\s*([\d.]+)元/.exec(text);
+    if (flatMatch) {
+      flat["deepseek-v4-flash"] = { hit: Number(flatMatch[1]), miss: Number(flatMatch[3]), output: Number(flatMatch[5]) };
+      flat["deepseek-v4-pro"] = { hit: Number(flatMatch[2]), miss: Number(flatMatch[4]), output: Number(flatMatch[6]) };
+    }
+    // Peak/off-peak rate card (effective from the parsed switch date).
+    const peak = {};
+    const peakPattern = /deepseek-v4-(flash|pro)\s*空闲时段\s*([\d.]+)元\s*([\d.]+)元\s*([\d.]+)元\s*高峰时段\s*([\d.]+)元\s*([\d.]+)元\s*([\d.]+)元/g;
+    for (const match of text.matchAll(peakPattern)) {
+      peak[`deepseek-v4-${match[1]}`] = {
         offPeak: { hit: Number(match[2]), miss: Number(match[3]), output: Number(match[4]) },
         peak: { hit: Number(match[5]), miss: Number(match[6]), output: Number(match[7]) }
       };
     }
-    return Object.keys(pricing).length > 0 ? pricing : null;
+    // Peak/off-peak switch instant (Beijing time, epoch ms).
+    const dateMatch = /北京时间\s*(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日\s*(\d{1,2}):?(\d{2})?\s*开始生效/.exec(text);
+    const effective = dateMatch
+      ? Date.UTC(Number(dateMatch[1]), Number(dateMatch[2]) - 1, Number(dateMatch[3]), Number(dateMatch[4]) - 8, Number(dateMatch[5] ?? 0))
+      : null;
+    if (Object.keys(flat).length === 0 && Object.keys(peak).length === 0) return null;
+    return { flat, peak, effective };
     }
 
 /** Module-level pricing cache: at=0 means never fetched. */
-const pricingCache = { at: 0, value: null, source: "builtin" };
+const pricingCache = { at: 0, value: null, source: "builtin", table: null, effective: null };
 
 /**
  * Refresh the official pricing table at most every PRICING_CACHE_TTL_MS.
@@ -209,7 +226,17 @@ async function fetchPricing() {
       if (response.ok) {
         const parsed = parsePricing(await response.text());
         if (parsed !== null) {
-          pricingCache.value = parsed;
+          const active = parsed.effective === null || Date.now() < parsed.effective
+            ? (Object.keys(parsed.flat).length > 0 ? { kind: "flat", table: parsed.flat } : { kind: "peak", table: parsed.peak })
+            : { kind: "peak", table: parsed.peak };
+          pricingCache.value = {};
+          for (const [model, price] of Object.entries(active.table)) {
+            pricingCache.value[model] = active.kind === "flat"
+              ? { offPeak: price, peak: price }
+              : price;
+          }
+          pricingCache.table = active.kind;
+          pricingCache.effective = parsed.effective === null ? null : new Date(parsed.effective).toISOString();
           pricingCache.source = "docs";
         }
       }
@@ -231,6 +258,8 @@ async function queryUsageStatus(credentials, baselinePath) {
     usageCost: null,
     pricing: null,
     pricingSource: "builtin",
+    pricingTable: null,
+    pricingEffective: null,
     pricingFetchedAt: null,
     errors: []
   };
@@ -280,6 +309,8 @@ async function queryUsageStatus(credentials, baselinePath) {
   result.pricing = pricing.value;
   result.pricingSource = pricing.source;
   result.pricingFetchedAt = pricing.at === 0 ? null : new Date(pricing.at).toISOString();
+  result.pricingTable = pricing.table ?? null;
+  result.pricingEffective = pricing.effective ?? null;
   return result;
 }
 

@@ -40,19 +40,39 @@ window.__ModuleLoader__.load({
 				peak: { hit: 0.1, miss: 3.0, output: 9.0 }
 			}
 		};
-		/**
+		/** Flat rate card, in effect until the peak/off-peak switch. */
+	const PRICING_FLAT = {
+		"deepseek-v4-pro": { hit: 0.025, miss: 3.0, output: 6.0 },
+		"deepseek-v4-flash": { hit: 0.02, miss: 1.0, output: 2.0 }
+	};
+	/** Peak/off-peak switch instant (2026-08-17 00:00 Beijing), epoch ms. */
+	const PEAK_EFFECTIVE_AT = Date.UTC(2026, 7, 17, 0, 0) - 8 * 3600e3;
+	/**
+	 * Built-in active card: flat before the switch, peak afterwards; returns
+	 * the bracket-shaped table (flat normalizes to offPeak === peak).
+	 * @param modelId - the session's model id (may be null).
+	 * @returns the price table.
+	 */
+	function builtinTableOf(modelId) {
+		const flat = Date.now() < PEAK_EFFECTIVE_AT;
+		const table = flat ? PRICING_FLAT : PRICING;
+		const price = table[modelId] ?? table["deepseek-v4-pro"];
+		return flat ? { offPeak: price, peak: price } : price;
+	}
+	/**
 	 * Resolve one model id to its price table: the served (docs-synced) table
 	 * wins, then the built-in table, then v4-pro as the final fallback.
 	 * @param modelId - the session's model id (may be null).
 	 * @param served - pricing served by the host, or null.
 	 * @returns the price table.
 	 */
-	function priceOf(modelId, served) {
-		if (served !== null && served !== undefined && typeof served === "object") {
+	function priceOf(modelId, served, servedTable) {
+		if (served !== null && served !== undefined && typeof served === "object"
+			&& (servedTable === "flat" || servedTable === "peak")) {
 			const table = served[modelId] ?? served["deepseek-v4-pro"];
 			if (table !== undefined && table !== null) return table;
 		}
-		return PRICING[modelId] ?? PRICING["deepseek-v4-pro"];
+		return builtinTableOf(modelId);
 	}
 	const PEAK_HOURS = new Set([9, 10, 11, 14, 15, 16, 17]);
 		const CURRENCY_SYMBOLS = { CNY: "¥", USD: "$", EUR: "€" };
@@ -81,16 +101,16 @@ window.__ModuleLoader__.load({
 		function totalTokens(usage) {
 			return usage.uncachedInputTokens + usage.cacheReadTokens + usage.cacheWriteTokens + usage.outputTokens;
 		}
-		function costEstimate(usage, modelId, served) {
-			const price = priceOf(modelId, served);
+		function costEstimate(usage, modelId, served, servedTable) {
+			const price = priceOf(modelId, served, servedTable);
 			const read = usage.cacheReadTokens;
 			const miss = usage.uncachedInputTokens + usage.cacheWriteTokens;
 			const out = usage.outputTokens;
 			const at = (bracket) => (read * bracket.hit + miss * bracket.miss + out * bracket.output) / 1e6;
 			return { offPeak: at(price.offPeak), peak: at(price.peak) };
 		}
-		function costOfBuckets(buckets, modelId, served) {
-			const price = priceOf(modelId, served);
+		function costOfBuckets(buckets, modelId, served, servedTable) {
+			const price = priceOf(modelId, served, servedTable);
 			const read = buckets.cacheRead;
 			const miss = buckets.uncached + buckets.cacheWrite;
 			const out = buckets.output;
@@ -205,11 +225,11 @@ window.__ModuleLoader__.load({
 			return total;
 		}
 		/** Today's cost estimate: each model's buckets times that model's price table. */
-		function todayCostOf(record, served) {
+		function todayCostOf(record, served, servedTable) {
 			let offPeak = 0;
 			let peak = 0;
 			for (const [modelId, buckets] of Object.entries(todayModelsOf(record))) {
-				const cost = costOfBuckets(buckets, modelId, served);
+				const cost = costOfBuckets(buckets, modelId, served, servedTable);
 				offPeak += cost.offPeak;
 				peak += cost.peak;
 			}
@@ -333,11 +353,13 @@ window.__ModuleLoader__.load({
 			const balance = status?.balance;
 			const balanceUnavailable = status === null || status?.failed === true || status?.disabled === true;
 			const bracket = balanceUnavailable && status !== null ? "error" : facts.isPeak ? "peak" : "idle";
-			const servedPricing = status !== null && typeof status.pricing === "object" ? status.pricing : null;
+			const servedTable = status !== null && (status.pricingTable === "flat" || status.pricingTable === "peak") ? status.pricingTable : null;
+			const servedPricing = servedTable !== null && typeof status.pricing === "object" ? status.pricing : null;
+			const flatCard = (servedTable === "flat") || (servedTable === null && Date.now() < PEAK_EFFECTIVE_AT);
 			const total = usage !== undefined ? totalTokens(usage) : 0;
-			const estimate = usage !== undefined && total > 0 ? costEstimate(usage, modelId, servedPricing) : null;
+			const estimate = usage !== undefined && total > 0 ? costEstimate(usage, modelId, servedPricing, servedTable) : null;
 			const todayTotal = todayTokensOf(today);
-			const todayCost = todayTotal > 0 ? todayCostOf(today, servedPricing) : { offPeak: 0, peak: 0 };
+			const todayCost = todayTotal > 0 ? todayCostOf(today, servedPricing, servedTable) : { offPeak: 0, peak: 0 };
 			const todaySpend = status !== null && status.todaySpend !== null && typeof status.todaySpend?.amount === "number"
 				? status.todaySpend
 				: null;
@@ -430,7 +452,7 @@ window.__ModuleLoader__.load({
 								jsx("div", { className: "uW_costCellValue", children: "¥" + formatMoney(estimate.peak) })
 							] })
 						] }),
-						jsx("div", { className: "uW_costNote", children: t("panel.costNote", { model: modelId ?? "deepseek-v4-pro", source: servedPricing !== null ? t("panel.costSourceDocs") : t("panel.costSourceBuiltin") }) })
+						jsx("div", { className: "uW_costNote", children: t("panel.costNote", { model: modelId ?? "deepseek-v4-pro", source: (servedPricing !== null ? t("panel.costSourceDocs") : t("panel.costSourceBuiltin")) + " · " + (flatCard ? t("panel.costTableFlat") : t("panel.costTablePeak")) }) })
 					] }),
 					(monthTokens !== undefined || monthCost !== undefined) && jsxs(Fragment, { children: [
 						jsx("div", { className: "uW_sectionLabel", children: t("panel.month") }),
@@ -572,9 +594,11 @@ window.__ModuleLoader__.load({
 			"panel.todayNote": "本机观测统计（非官方账单）：按会话去重累计本机今日产生的 token，金额按各模型峰谷价目估算；跨浏览器/未打开页面的用量不计入",
 			"panel.costOff": "本会话 · 空闲",
 			"panel.costPeak": "本会话 · 高峰",
-			"panel.costNote": "按 {model} 峰谷价目估算（{source}）",
+			"panel.costNote": "按 {model} 价目估算（{source}）",
 			"panel.costSourceDocs": "价格来自官方定价页，自动同步",
 			"panel.costSourceBuiltin": "内置价目表（自动同步不可用）",
+			"panel.costTableFlat": "当前平价表（峰谷价 8/17 起切换）",
+			"panel.costTablePeak": "峰谷价目表",
 			"panel.month": "本月账户用量",
 			"panel.updated": "{time} 更新 · 点击刷新",
 			"panel.loading": "查询中…",
@@ -614,9 +638,11 @@ window.__ModuleLoader__.load({
 			"panel.todayNote": "Locally observed tokens (not the official bill): session-deduplicated usage produced on this machine today, priced with each model's peak/off-peak table; usage while no page was open is not counted",
 			"panel.costOff": "This session · off-peak",
 			"panel.costPeak": "This session · peak",
-			"panel.costNote": "Estimated from {model} peak/off-peak pricing ({source})",
+			"panel.costNote": "Estimated from {model} pricing ({source})",
 			"panel.costSourceDocs": "prices synced from the official pricing page",
 			"panel.costSourceBuiltin": "built-in table (docs sync unavailable)",
+			"panel.costTableFlat": "flat rate card (peak/off-peak from 08-17)",
+			"panel.costTablePeak": "peak/off-peak card",
 			"panel.month": "This month",
 			"panel.updated": "Updated {time} · click to refresh",
 			"panel.loading": "Loading…",
