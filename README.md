@@ -35,7 +35,7 @@ DSH Web 界面「用量与费用」插件（独立项目），包含两个包：
 - 已安装并运行 `dsh web`（DeepSeek Harness 的 Web 界面）
 - 凭证中已配置 `DEEPSEEK_API_KEY`（写入 `$DSH_HOME/.credentials.yaml` 或环境变量，格式 `DEEPSEEK_API_KEY: sk-...`）
 - 可选：`DEEPSEEK_PLATFORM_TOKEN`（platform.deepseek.com 浏览器登录态的 `userToken`），用于显示本月账户用量
-- 宿主插件依赖 `@deepseek-ai/schemastery`：在本仓库根目录执行一次 `pnpm install`（或把本机 DSH 模块目录 junction 到本仓库的 `node_modules/`）
+- 宿主插件依赖 `@deepseek-ai/schemastery`：在本仓库根目录执行一次 `pnpm install`（或把本机 DSH 模块目录链接到本仓库的 `node_modules/`）
 
 ### 2. 把两个包放进 DSH 的模块目录
 
@@ -44,14 +44,14 @@ DSH 的宿主 Loader 与浏览器模块扫描器都按**包名**从 `$DSH_HOME/p
 - `dsh-usage-status` → `$DSH_HOME/profiles/node_modules/dsh-usage-status`
 - `dsh-client-ui-usage-footer` → `$DSH_HOME/profiles/node_modules/dsh-client-ui-usage-footer`
 
-Windows 上建议用 junction，之后改本仓库代码即生效：
+本 WSL 安装已把两个包 link 进 `~/.dsh/profiles/web/node_modules/`：
 
-```powershell
-New-Item -ItemType Junction -Path "$env:USERPROFILE\.dsh\profiles\node_modules\dsh-usage-status"           -Target "<本仓库路径>\packages\dsh-usage-status"
-New-Item -ItemType Junction -Path "$env:USERPROFILE\.dsh\profiles\node_modules\dsh-client-ui-usage-footer" -Target "<本仓库路径>\packages\dsh-client-ui-usage-footer"
+```bash
+ln -s /home/zhouweibin/code/dsh-usage-footer/packages/dsh-usage-status ~/.dsh/profiles/web/node_modules/dsh-usage-status
+ln -s /home/zhouweibin/code/dsh-usage-footer/packages/dsh-client-ui-usage-footer ~/.dsh/profiles/web/node_modules/dsh-client-ui-usage-footer
 ```
 
-macOS/Linux 同理，用 `ln -s` 链接到 `~/.dsh/profiles/node_modules/` 下；直接复制目录也可以。
+macOS/Linux 通用做法是用 `ln -s` 链接到 `~/.dsh/profiles/web/node_modules/` 下；直接复制目录也可以。Windows 原版可用 junction，命令见原仓库。
 
 ### 3. 在 Web profile 的组合里注册两行
 
@@ -75,7 +75,7 @@ macOS/Linux 同理，用 `ln -s` 链接到 `~/.dsh/profiles/node_modules/` 下�
 
 ## 本地检查
 
-```powershell
+```bash
 pnpm run check        # 语法检查两个入口文件
 ```
 

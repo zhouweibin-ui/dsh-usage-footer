@@ -12,7 +12,7 @@ window.__ModuleLoader__.load({
 		var jsxs = react_jsx_runtime.jsxs;
 		var Fragment = react_jsx_runtime.Fragment;
 		//#region UsageWidget.css
-		const css = ".uW_root{position:relative;z-index:60}.uW_button{display:block;width:100%;max-width:var(--dsh-chat-content-width);margin:0 auto;box-sizing:border-box;padding:2px calc(var(--dsh-composer-side-clearance) + 16px) 0;font-size:12px;line-height:20px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:none;border:none;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .16s var(--ds-ease-in-out)}.uW_button:hover{color:var(--dsw-alias-label-secondary)}.uW_button:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:2px}.uW_sep{color:var(--dsw-alias-separator-primary);margin:0 10px}.uW_dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;background:var(--dsw-alias-label-caption)}.uW_dot[data-bracket=\"peak\"]{background:#f2b04c;animation:uW-pulse 1.6s ease-in-out infinite}.uW_dot[data-bracket=\"idle\"]{background:var(--dsw-alias-state-success-primary)}.uW_dot[data-bracket=\"error\"]{background:var(--dsw-alias-state-error-primary)}@keyframes uW-pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,176,76,.45)}50%{box-shadow:0 0 0 5px rgba(242,176,76,0)}}.uW_headDot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;border:2px solid var(--dsw-alias-bg-base);background:var(--dsw-alias-label-caption)}.uW_headDot[data-bracket=\"peak\"]{background:#f2b04c;animation:uW-pulse 1.6s ease-in-out infinite}.uW_headDot[data-bracket=\"idle\"]{background:var(--dsw-alias-state-success-primary)}.uW_headDot[data-bracket=\"error\"]{background:var(--dsw-alias-state-error-primary)}.uW_panel{position:absolute;z-index:61;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);width:300px;max-height:min(56vh,460px);overflow-y:auto;box-sizing:border-box;border:1px solid var(--dsw-alias-border-inverted);border-radius:16px;background:color-mix(in srgb,var(--dsw-specific-menu) 92%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--dsw-shadow-lv3);padding:14px 16px 12px;color:var(--dsw-alias-label-secondary);transition:opacity .16s var(--ds-ease-in-out),transform .16s var(--ds-ease-in-out);transform-origin:bottom center}.uW_panel[data-open=\"false\"]{opacity:0;transform:translateX(-50%) translateY(6px) scale(.98);pointer-events:none}.uW_head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_label{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}.uW_amount{font-size:24px;line-height:30px;font-weight:650;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums;letter-spacing:-.01em}.uW_sub{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);margin-top:2px;font-variant-numeric:tabular-nums}.uW_divider{border:none;border-top:1px solid var(--dsw-alias-border-l2);margin:10px 0}.uW_bracketRow{display:flex;align-items:center;gap:8px}.uW_bracketDot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--dsw-alias-state-success-primary)}.uW_bracketDot[data-bracket=\"peak\"]{background:#f2b04c;animation:uW-pulse 1.6s ease-in-out infinite}.uW_bracketText{flex:1;min-width:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.uW_clock{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums;flex:none}.uW_timeline{display:flex;gap:2px;margin-top:8px;height:8px}.uW_hour{flex:1;border-radius:2px;background:var(--dsw-alias-border-l2);min-width:0}.uW_hour[data-peak=\"true\"]{background:color-mix(in srgb,#f2b04c 62%,transparent)}.uW_hour[data-now=\"true\"]{outline:1.5px solid var(--dsw-alias-label-primary);outline-offset:1px}.uW_sectionLabel{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);margin:10px 0 6px;letter-spacing:.04em}.uW_totalRow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_total{font-size:20px;line-height:26px;font-weight:650;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}.uW_totalHint{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}.uW_bucket{margin-top:7px}.uW_bucketHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_bucketLabel{font-size:12px;line-height:17px;color:var(--dsw-alias-label-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.uW_bucketValue{font-size:12px;line-height:17px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums;flex:none}.uW_bucketBar{height:3px;border-radius:2px;background:var(--dsw-alias-interactive-bg-hover);margin-top:3px;overflow:hidden}.uW_bucketFill{height:100%;border-radius:2px;background:var(--bucket-tint,var(--dsw-alias-label-secondary));transition:width .3s var(--ds-ease-in-out)}.uW_tintUncached{--bucket-tint:#60a5fa}.uW_tintCacheRead{--bucket-tint:var(--dsw-alias-state-success-primary)}.uW_tintCacheWrite{--bucket-tint:#a78bfa}.uW_tintOutput{--bucket-tint:var(--dsw-alias-label-secondary)}.uW_spendCell{border:1px solid color-mix(in srgb,#f2b04c 55%,transparent);border-radius:10px;padding:8px 10px;background:color-mix(in srgb,#f2b04c 10%,var(--dsw-alias-bg-layer-3));flex-direction:column;gap:3px;margin-bottom:8px}.uW_spendHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_spendLabel{flex:1;min-width:0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}.uW_spendValue{flex:none;font-size:16px;line-height:22px;font-weight:650;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}.uW_spendSub{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums}.uW_localCell{border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:8px 10px;background:var(--dsw-alias-bg-layer-3);flex-direction:column;gap:3px;margin-bottom:8px}.uW_localHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_localLabel{flex:1;min-width:0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}.uW_localTokens{flex:none;font-size:12px;line-height:17px;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums;font-weight:600}.uW_localCost{font-size:12px;line-height:17px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}.uW_costGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.uW_costCell{border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:8px 10px;background:var(--dsw-alias-bg-layer-3)}.uW_costCellLabel{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);display:flex;align-items:center;gap:5px}.uW_costCellValue{font-size:16px;line-height:22px;font-weight:600;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums;margin-top:2px}.uW_costNote{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);margin-top:6px}.uW_footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px solid var(--dsw-alias-border-l2)}.uW_updated{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:none;border:none;padding:0;font:inherit}.uW_updated:hover{color:var(--dsw-alias-label-secondary);text-decoration:underline}.uW_hint{font-size:11px;line-height:16px;color:var(--dsw-alias-label-caption)}.uT_row{border-bottom:1px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.uT_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.uT_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.uT_desc{color:var(--dsw-alias-label-tertiary);font-size:12px;font-weight:400;line-height:18px}.uT_selector{background:var(--dsw-alias-bg-module-platform);height:36px;font:inherit;color:var(--dsw-alias-label-primary);cursor:pointer;border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.uT_selector:hover{background:var(--dsw-alias-interactive-bg-hover)}.uT_chevron{flex:none}";
+		const css = ".uW_root{position:relative;z-index:60}.uW_button{display:block;width:100%;max-width:var(--dsh-chat-content-width);margin:0 auto;box-sizing:border-box;padding:2px calc(var(--dsh-composer-side-clearance) + 16px) 0;font-size:12px;line-height:20px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:none;border:none;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .16s var(--ds-ease-in-out)}.uW_button:hover{color:var(--dsw-alias-label-secondary)}.uW_button:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:2px}.uW_sep{color:var(--dsw-alias-separator-primary);margin:0 10px}.uW_dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;background:var(--dsw-alias-label-caption)}.uW_dot[data-bracket=\"peak\"]{background:#f2b04c;animation:uW-pulse 1.6s ease-in-out infinite}.uW_dot[data-bracket=\"idle\"]{background:var(--dsw-alias-state-success-primary)}.uW_dot[data-bracket=\"error\"]{background:var(--dsw-alias-state-error-primary)}@keyframes uW-pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,176,76,.45)}50%{box-shadow:0 0 0 5px rgba(242,176,76,0)}}.uW_headDot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;border:2px solid var(--dsw-alias-bg-base);background:var(--dsw-alias-label-caption)}.uW_headDot[data-bracket=\"peak\"]{background:#f2b04c;animation:uW-pulse 1.6s ease-in-out infinite}.uW_headDot[data-bracket=\"idle\"]{background:var(--dsw-alias-state-success-primary)}.uW_headDot[data-bracket=\"error\"]{background:var(--dsw-alias-state-error-primary)}.uW_panel{position:absolute;z-index:61;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);width:300px;max-height:min(56vh,460px);overflow-y:auto;box-sizing:border-box;border:1px solid var(--dsw-alias-border-inverted);border-radius:16px;background:color-mix(in srgb,var(--dsw-specific-menu) 92%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--dsw-shadow-lv3);padding:14px 16px 12px;color:var(--dsw-alias-label-secondary);transition:opacity .16s var(--ds-ease-in-out),transform .16s var(--ds-ease-in-out);transform-origin:bottom center}.uW_panel[data-open=\"false\"]{opacity:0;transform:translateX(-50%) translateY(6px) scale(.98);pointer-events:none}.uW_head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_label{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}.uW_amount{font-size:24px;line-height:30px;font-weight:650;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums;letter-spacing:-.01em}.uW_sub{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);margin-top:2px;font-variant-numeric:tabular-nums}.uW_divider{border:none;border-top:1px solid var(--dsw-alias-border-l2);margin:10px 0}.uW_bracketRow{display:flex;align-items:center;gap:8px}.uW_bracketDot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--dsw-alias-state-success-primary)}.uW_bracketDot[data-bracket=\"peak\"]{background:#f2b04c;animation:uW-pulse 1.6s ease-in-out infinite}.uW_bracketText{flex:1;min-width:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.uW_clock{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums;flex:none}.uW_timeline{display:flex;gap:2px;margin-top:8px;height:8px}.uW_hour{flex:1;border-radius:2px;background:var(--dsw-alias-border-l2);min-width:0}.uW_hour[data-peak=\"true\"]{background:color-mix(in srgb,#f2b04c 62%,transparent)}.uW_hour[data-now=\"true\"]{outline:1.5px solid var(--dsw-alias-label-primary);outline-offset:1px}.uW_sectionLabel{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);margin:10px 0 6px;letter-spacing:.04em}.uW_totalRow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_total{font-size:20px;line-height:26px;font-weight:650;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}.uW_totalHint{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}.uW_bucket{margin-top:7px}.uW_bucketHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_bucketLabel{font-size:12px;line-height:17px;color:var(--dsw-alias-label-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.uW_bucketValue{font-size:12px;line-height:17px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums;flex:none}.uW_bucketBar{height:3px;border-radius:2px;background:var(--dsw-alias-interactive-bg-hover);margin-top:3px;overflow:hidden}.uW_bucketFill{height:100%;border-radius:2px;background:var(--bucket-tint,var(--dsw-alias-label-secondary));transition:width .3s var(--ds-ease-in-out)}.uW_tintUncached{--bucket-tint:#60a5fa}.uW_tintCacheRead{--bucket-tint:var(--dsw-alias-state-success-primary)}.uW_tintCacheWrite{--bucket-tint:#a78bfa}.uW_tintOutput{--bucket-tint:var(--dsw-alias-label-secondary)}.uW_tintKimi{--bucket-tint:#4f8cff}.uW_tintGo{--bucket-tint:#f97316}.uW_spendCell{border:1px solid color-mix(in srgb,#f2b04c 55%,transparent);border-radius:10px;padding:8px 10px;background:color-mix(in srgb,#f2b04c 10%,var(--dsw-alias-bg-layer-3));flex-direction:column;gap:3px;margin-bottom:8px}.uW_spendHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_spendLabel{flex:1;min-width:0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}.uW_spendValue{flex:none;font-size:16px;line-height:22px;font-weight:650;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}.uW_spendSub{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums}.uW_localCell{border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:8px 10px;background:var(--dsw-alias-bg-layer-3);flex-direction:column;gap:3px;margin-bottom:8px}.uW_localHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.uW_localLabel{flex:1;min-width:0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}.uW_localTokens{flex:none;font-size:12px;line-height:17px;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums;font-weight:600}.uW_localCost{font-size:12px;line-height:17px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}.uW_costGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.uW_costCell{border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:8px 10px;background:var(--dsw-alias-bg-layer-3)}.uW_costCellLabel{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);display:flex;align-items:center;gap:5px}.uW_costCellValue{font-size:16px;line-height:22px;font-weight:600;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums;margin-top:2px}.uW_costNote{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);margin-top:6px}.uW_footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px solid var(--dsw-alias-border-l2)}.uW_updated{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:none;border:none;padding:0;font:inherit}.uW_updated:hover{color:var(--dsw-alias-label-secondary);text-decoration:underline}.uW_hint{font-size:11px;line-height:16px;color:var(--dsw-alias-label-caption)}.uT_row{border-bottom:1px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.uT_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.uT_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.uT_desc{color:var(--dsw-alias-label-tertiary);font-size:12px;font-weight:400;line-height:18px}.uT_selector{background:var(--dsw-alias-bg-module-platform);height:36px;font:inherit;color:var(--dsw-alias-label-primary);cursor:pointer;border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.uT_selector:hover{background:var(--dsw-alias-interactive-bg-hover)}.uT_chevron{flex:none}.uT_input{flex:1;min-width:0;height:32px;padding:0 12px;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-module-platform);border:1px solid var(--dsw-alias-border-l2);border-radius:8px;outline:none}.uT_input:focus{border-color:var(--dsw-alias-state-business-primary)}.uT_btn{flex:none;height:32px;padding:0 14px;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-module-platform);border:none;border-radius:8px;cursor:pointer}.uT_btn:hover{background:var(--dsw-alias-interactive-bg-hover)}.uT_state{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary)}";
 		const tagId = "dsh-client-ui-usage-footer/UsageWidget.css";
 		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
 			const tag = document.createElement("style");
@@ -166,6 +166,34 @@ window.__ModuleLoader__.load({
 		}
 		function pad2(n) {
 			return n < 10 ? "0" + n : String(n);
+		}
+		/** Kimi quota row → used percentage (rows carry percent-point values). */
+		function quotaPercent(row) {
+			if (row === null || row === undefined) return null;
+			const used = Number(row.used);
+			const limit = Number(row.limit);
+			if (!Number.isFinite(used)) return null;
+			if (Number.isFinite(limit) && limit > 0) return Math.round(used / limit * 100);
+			return Math.round(used);
+		}
+		/** Reset facts for one quota row: local MM-DD HH:MM plus a human countdown. */
+		function quotaReset(t, resetTime, nowMs) {
+			if (typeof resetTime !== "string") return null;
+			const at = Date.parse(resetTime);
+			if (!Number.isFinite(at)) return null;
+			const d = new Date(at);
+			const time = pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+			const ms = at - nowMs;
+			if (ms <= 0) return { time, left: t("panel.kimiNow") };
+			const totalMin = Math.floor(ms / 60000);
+			const days = Math.floor(totalMin / 1440);
+			const hours = Math.floor((totalMin % 1440) / 60);
+			const minutes = totalMin % 60;
+			let left;
+			if (days > 0) left = days + t("unit.d") + (hours > 0 ? " " + hours + t("unit.h") : "");
+			else if (hours > 0) left = hours + t("unit.h") + (minutes > 0 ? " " + minutes + t("unit.m") : "");
+			else left = Math.max(1, minutes) + t("unit.m");
+			return { time, left };
 		}
 		function localDayKey() {
 			const d = new Date();
@@ -365,6 +393,29 @@ window.__ModuleLoader__.load({
 				: null;
 			const monthTokens = status !== null ? findNumber(status.usageAmount, /token/i) ?? findNumber(status.usageAmount, /amount|total/i) : undefined;
 			const monthCost = status !== null ? findNumber(status.usageCost, /cost|spend|consumption|amount/i) : undefined;
+			const kimi = status !== null && status.kimi !== null && typeof status.kimi === "object" ? status.kimi : null;
+			const kimiConfigured = kimi !== null && kimi.configured === true;
+			const kimi5h = kimi?.fiveHour ?? null;
+			const kimiWeekly = kimi?.weekly ?? null;
+			const kimi5hPct = quotaPercent(kimi5h);
+			const kimiWeeklyPct = quotaPercent(kimiWeekly);
+			const kimi5hReset = kimi5h !== null ? quotaReset(t, kimi5h.resetTime, now) : null;
+			const kimiWeeklyReset = kimiWeekly !== null ? quotaReset(t, kimiWeekly.resetTime, now) : null;
+			const kimiBooster = kimi?.booster ?? null;			const kimiMonthly = kimi?.monthly ?? null;
+			const kimiMonthlyConfigured = kimi?.monthlyConfigured === true;
+			const kimiMonthPct = kimiMonthly !== null && Number.isFinite(Number(kimiMonthly.usedPct)) ? Math.round(Number(kimiMonthly.usedPct)) : null;
+			const go = status !== null && status.opencodeGo !== null && typeof status.opencodeGo === "object" ? status.opencodeGo : null;
+			const goConfigured = go !== null && go.configured === true;
+			const go5h = go?.fiveHour ?? null;
+			const goWeekly = go?.weekly ?? null;
+			const goMonthly = go?.monthly ?? null;
+			const go5hPct = quotaPercent(go5h);
+			const goWeeklyPct = quotaPercent(goWeekly);
+			const goMonthPct = quotaPercent(goMonthly);
+			const go5hReset = go5h !== null ? quotaReset(t, go5h.resetTime, now) : null;
+			const goWeeklyReset = goWeekly !== null ? quotaReset(t, goWeekly.resetTime, now) : null;
+			const goMonthReset = goMonthly !== null ? quotaReset(t, goMonthly.resetTime, now) : null;
+
 			const buckets = usage !== undefined && total > 0 ? [
 				{ key: "uncached", tint: "uW_tintUncached", label: t("panel.inputUncached"), value: usage.uncachedInputTokens },
 				{ key: "cacheRead", tint: "uW_tintCacheRead", label: t("panel.cacheRead"), value: usage.cacheReadTokens },
@@ -461,6 +512,89 @@ window.__ModuleLoader__.load({
 							jsx("span", { className: "uW_totalHint", children: monthCost !== undefined ? "¥" + formatMoney(monthCost) : "–" })
 						] })
 					] }),
+					kimiConfigured && jsxs(Fragment, { children: [
+						jsx("div", { className: "uW_sectionLabel", children: t("panel.kimi") }),
+						kimi5h === null && kimiWeekly === null && jsx("div", { className: "uW_sub", children: t("panel.kimiUnavailable") }),
+						kimi5h !== null && jsxs("div", { className: "uW_bucket", children: [
+							jsxs("div", { className: "uW_bucketHead", children: [
+								jsx("span", { className: "uW_bucketLabel", children: t("panel.kimi5h") }),
+								jsx("span", { className: "uW_bucketValue", children: kimi5hPct !== null ? t("panel.kimiUsed", { pct: kimi5hPct }) : "—" })
+							] }),
+							jsx("div", { className: "uW_bucketBar", children: jsx("div", {
+								className: "uW_bucketFill uW_tintKimi",
+								style: { width: Math.max(2, Math.min(100, kimi5hPct ?? 0)) + "%" }
+							}) }),
+							kimi5hReset !== null && jsx("div", { className: "uW_sub", children: t("panel.kimiReset", { time: kimi5hReset.time, left: kimi5hReset.left }) })
+						] }),
+						kimiWeekly !== null && jsxs("div", { className: "uW_bucket", children: [
+							jsxs("div", { className: "uW_bucketHead", children: [
+								jsx("span", { className: "uW_bucketLabel", children: t("panel.kimiWeekly") }),
+								jsx("span", { className: "uW_bucketValue", children: kimiWeeklyPct !== null ? t("panel.kimiUsed", { pct: kimiWeeklyPct }) : "—" })
+							] }),
+							jsx("div", { className: "uW_bucketBar", children: jsx("div", {
+								className: "uW_bucketFill uW_tintKimi",
+								style: { width: Math.max(2, Math.min(100, kimiWeeklyPct ?? 0)) + "%" }
+							}) }),
+							kimiWeeklyReset !== null && jsx("div", { className: "uW_sub", children: t("panel.kimiReset", { time: kimiWeeklyReset.time, left: kimiWeeklyReset.left }) })
+						] }),
+						kimiBooster !== null && jsxs("div", { className: "uW_totalRow", children: [
+							jsx("span", { className: "uW_bucketLabel", children: t("panel.kimiBooster") }),
+							jsx("span", { className: "uW_totalHint", children: t("panel.kimiBoosterValue", {
+								used: moneyText(formatMoney(kimiBooster.usedCents / 100), kimiBooster.currency),
+								limit: moneyText(formatMoney(kimiBooster.limitCents / 100), kimiBooster.currency)
+							}) })
+						] }),
+						kimiMonthlyConfigured && kimiMonthPct !== null && jsxs("div", { className: "uW_bucket", children: [
+							jsxs("div", { className: "uW_bucketHead", children: [
+								jsx("span", { className: "uW_bucketLabel", children: t("panel.kimiMonthly") }),
+								jsx("span", { className: "uW_bucketValue", children: t("panel.kimiUsed", { pct: kimiMonthPct }) })
+							] }),
+							jsx("div", { className: "uW_bucketBar", children: jsx("div", {
+								className: "uW_bucketFill uW_tintKimi",
+								style: { width: Math.max(2, Math.min(100, kimiMonthPct)) + "%" }
+							}) }),
+							typeof kimiMonthly?.resetDate === "string" && jsx("div", { className: "uW_sub", children: t("panel.kimiMonthlyReset", { date: kimiMonthly.resetDate }) })
+						] }),
+						kimiMonthlyConfigured && kimiMonthPct === null && jsx("div", { className: "uW_sub", children: t("panel.kimiMonthlyFailed") }),
+						!kimiMonthlyConfigured && jsx("div", { className: "uW_sub", children: t("panel.kimiMonthlyNeedCookie") }),
+					] }),
+					goConfigured && jsxs(Fragment, { children: [
+						jsx("div", { className: "uW_sectionLabel", children: t("panel.go") }),
+						go5h === null && goWeekly === null && goMonthly === null && jsx("div", { className: "uW_sub", children: t("panel.goUnavailable") }),
+						go5h !== null && jsxs("div", { className: "uW_bucket", children: [
+							jsxs("div", { className: "uW_bucketHead", children: [
+								jsx("span", { className: "uW_bucketLabel", children: t("panel.go5h") }),
+								jsx("span", { className: "uW_bucketValue", children: go5hPct !== null ? t("panel.kimiUsed", { pct: go5hPct }) : "—" })
+							] }),
+							jsx("div", { className: "uW_bucketBar", children: jsx("div", {
+								className: "uW_bucketFill uW_tintGo",
+								style: { width: Math.max(2, Math.min(100, go5hPct ?? 0)) + "%" }
+							}) }),
+							go5hReset !== null && jsx("div", { className: "uW_sub", children: t("panel.kimiReset", { time: go5hReset.time, left: go5hReset.left }) })
+						] }),
+						goWeekly !== null && jsxs("div", { className: "uW_bucket", children: [
+							jsxs("div", { className: "uW_bucketHead", children: [
+								jsx("span", { className: "uW_bucketLabel", children: t("panel.goWeekly") }),
+								jsx("span", { className: "uW_bucketValue", children: goWeeklyPct !== null ? t("panel.kimiUsed", { pct: goWeeklyPct }) : "—" })
+							] }),
+							jsx("div", { className: "uW_bucketBar", children: jsx("div", {
+								className: "uW_bucketFill uW_tintGo",
+								style: { width: Math.max(2, Math.min(100, goWeeklyPct ?? 0)) + "%" }
+							}) }),
+							goWeeklyReset !== null && jsx("div", { className: "uW_sub", children: t("panel.kimiReset", { time: goWeeklyReset.time, left: goWeeklyReset.left }) })
+						] }),
+						goMonthly !== null && jsxs("div", { className: "uW_bucket", children: [
+							jsxs("div", { className: "uW_bucketHead", children: [
+								jsx("span", { className: "uW_bucketLabel", children: t("panel.goMonthly") }),
+								jsx("span", { className: "uW_bucketValue", children: goMonthPct !== null ? t("panel.kimiUsed", { pct: goMonthPct }) : "—" })
+							] }),
+							jsx("div", { className: "uW_bucketBar", children: jsx("div", {
+								className: "uW_bucketFill uW_tintGo",
+								style: { width: Math.max(2, Math.min(100, goMonthPct ?? 0)) + "%" }
+							}) }),
+							goMonthReset !== null && jsx("div", { className: "uW_sub", children: t("panel.kimiReset", { time: goMonthReset.time, left: goMonthReset.left }) })
+						] })
+					] }),
 					jsxs("div", { className: "uW_footer", children: [
 						jsx("button", {
 							type: "button",
@@ -484,6 +618,20 @@ window.__ModuleLoader__.load({
 			];
 			if (estimate !== null) {
 				lineGroups.push(jsx("span", { children: t("line.session", { amount: "¥" + formatMoney(estimate.offPeak) }) }, "session"));
+			}
+			if (kimiConfigured && (kimi5hPct !== null || kimiWeeklyPct !== null || kimiMonthPct !== null)) {
+				lineGroups.push(jsx("span", { children: t(kimiMonthPct !== null ? "line.kimiFull" : "line.kimi", {
+					h5: kimi5hPct !== null ? kimi5hPct + "%" : "–",
+					week: kimiWeeklyPct !== null ? kimiWeeklyPct + "%" : "–",
+					month: kimiMonthPct !== null ? kimiMonthPct + "%" : "–"
+				}) }, "kimi"));
+			}
+			if (goConfigured && (go5hPct !== null || goWeeklyPct !== null || goMonthPct !== null)) {
+				lineGroups.push(jsx("span", { children: t("line.go", {
+					h5: go5hPct !== null ? go5hPct + "%" : "–",
+					week: goWeeklyPct !== null ? goWeeklyPct + "%" : "–",
+					month: goMonthPct !== null ? goMonthPct + "%" : "–"
+				}) }, "go"));
 			}
 			lineGroups.push(jsx("span", { children: facts.isPeak
 				? t("line.peak", { time: (facts.tomorrow ? t("panel.tomorrow") : "") + facts.switchClock })
@@ -568,6 +716,77 @@ window.__ModuleLoader__.load({
 				]
 			});
 		}
+		/** General Settings row: kimi.com cookie input for the monthly quota. */
+		function KimiCookieRow(props) {
+			const { t } = props;
+			const [value, setValue] = react.useState("");
+			const [configured, setConfigured] = react.useState(false);
+			const [busy, setBusy] = react.useState(false);
+			react.useEffect(() => {
+				let alive = true;
+				fetch("/usage-status/kimi-cookie", { headers: { accept: "application/json" } })
+					.then((response) => (response.ok ? response.json() : null))
+					.then((data) => {
+						if (alive && data !== null) setConfigured(data.configured === true);
+					})
+					.catch(() => {});
+				return () => {
+					alive = false;
+				};
+			}, []);
+			const post = (cookie) => {
+				setBusy(true);
+				fetch("/usage-status/kimi-cookie", {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({ cookie })
+				})
+					.then((response) => (response.ok ? response.json() : null))
+					.then((data) => {
+						if (data !== null && data.ok === true) {
+							setConfigured(data.configured === true);
+							setValue("");
+						}
+					})
+					.catch(() => {})
+					.finally(() => setBusy(false));
+			};
+			const save = () => {
+				const next = value.trim();
+				if (next === "" || busy) return;
+				post(next);
+			};
+			const clear = () => {
+				if (!busy) post("");
+			};
+			return jsxs("div", {
+				className: "uT_row",
+				children: [
+					jsxs("div", {
+						className: "uT_rowText",
+						children: [
+							jsx("div", { className: "uT_title", children: t("settings.kimiCookie.title") }),
+							jsx("div", { className: "uT_desc", children: t("settings.kimiCookie.description") }),
+							jsx("div", { className: "uT_state", children: t(configured ? "settings.kimiCookie.configured" : "settings.kimiCookie.empty") })
+						]
+					}),
+					jsx("input", {
+						className: "uT_input",
+						type: "password",
+						placeholder: t("settings.kimiCookie.placeholder"),
+						value,
+						spellCheck: false,
+						autoComplete: "off",
+						onChange: (event) => setValue(event.target.value),
+						onKeyDown: (event) => {
+							if (event.key === "Enter") save();
+						}
+					}),
+					jsx("button", { type: "button", className: "uT_btn", disabled: busy, onClick: save, children: t("settings.kimiCookie.save") }),
+					configured && jsx("button", { type: "button", className: "uT_btn", disabled: busy, onClick: clear, children: t("settings.kimiCookie.clear") })
+				]
+			});
+		}
 		/** Usage-footer dictionaries (zh-CN / en). */
 		const zh = {
 			"button.label": "用量与费用",
@@ -607,6 +826,37 @@ window.__ModuleLoader__.load({
 			"settings.description": "会话统计行下方显示余额、峰谷时段与今日/本会话消费估算，点击展开详情",
 			"settings.enabled": "开启",
 			"settings.disabled": "关闭",
+			"panel.kimi": "Kimi Code 额度",
+			"panel.kimi5h": "5 小时额度",
+			"panel.kimiWeekly": "每周额度",
+			"panel.kimiBooster": "本月加油包",
+			"panel.kimiBoosterValue": "已用 {used} / 上限 {limit}",
+			"panel.kimiUsed": "已用 {pct}%",
+			"panel.kimiReset": "重置 {time}（{left}后）",
+			"panel.kimiUnavailable": "Kimi 额度查询失败",
+			"panel.kimiNow": "即将重置",
+			"unit.d": "天",
+			"unit.h": "小时",
+			"unit.m": "分钟",
+			"line.kimi": "Kimi 5h {h5} · 周 {week}",
+			"panel.kimiMonthly": "月度额度",
+			"panel.kimiMonthlyReset": "{date} 后重置",
+			"panel.kimiMonthlyFailed": "月额度查询失败（令牌可能已失效，请重新粘贴 refresh_token）",
+			"panel.kimiMonthlyNeedCookie": "在 设置 → 通用 粘贴 Kimi refresh_token 后显示月度额度",
+			"line.kimiFull": "Kimi 5h {h5} · 周 {week} · 月 {month}",
+		"panel.go": "opencode Go 额度",
+		"panel.go5h": "5 小时额度",
+		"panel.goWeekly": "每周额度",
+		"panel.goMonthly": "每月额度",
+		"panel.goUnavailable": "opencode Go 额度查询失败",
+		"line.go": "Go 5h {h5} · 周 {week} · 月 {month}",
+			"settings.kimiCookie.title": "Kimi 网页令牌（月度额度）",
+			"settings.kimiCookie.description": "粘贴 kimi.com 的 refresh_token（F12 → 应用 → 本地存储 → kimi.com → refresh_token），用于读取月度会员额度；自动续期免维护，仅保存在本机设置文件中",
+			"settings.kimiCookie.placeholder": "粘贴 refresh_token 值（只粘它即可自动续期）",
+			"settings.kimiCookie.save": "保存",
+			"settings.kimiCookie.clear": "清除",
+			"settings.kimiCookie.configured": "已配置（内容不显示）",
+			"settings.kimiCookie.empty": "未配置",
 			"line.balance": "余额 {amount}",
 			"line.today": "今日 {amount}",
 			"line.session": "本会话 ≈{amount}",
@@ -651,6 +901,37 @@ window.__ModuleLoader__.load({
 			"settings.description": "Billing line under the session stats: balance, peak/off-peak, today/session cost; click for details",
 			"settings.enabled": "On",
 			"settings.disabled": "Off",
+			"panel.kimi": "Kimi Code quota",
+			"panel.kimi5h": "5-hour quota",
+			"panel.kimiWeekly": "Weekly quota",
+			"panel.kimiBooster": "Monthly booster",
+			"panel.kimiBoosterValue": "{used} used / {limit} cap",
+			"panel.kimiUsed": "{pct}% used",
+			"panel.kimiReset": "Resets {time} (in {left})",
+			"panel.kimiUnavailable": "Kimi quota unavailable",
+			"panel.kimiNow": "resetting soon",
+			"unit.d": "d",
+			"unit.h": "h",
+			"unit.m": "m",
+			"line.kimi": "Kimi 5h {h5} · wk {week}",
+			"panel.kimiMonthly": "Monthly quota",
+			"panel.kimiMonthlyReset": "Resets {date}",
+			"panel.kimiMonthlyFailed": "Monthly quota fetch failed (token may have expired; paste a fresh refresh_token)",
+			"panel.kimiMonthlyNeedCookie": "Paste your kimi.com refresh_token in Settings → General to see the monthly quota",
+			"line.kimiFull": "Kimi 5h {h5} · wk {week} · mo {month}",
+		"panel.go": "opencode Go quota",
+		"panel.go5h": "5-hour quota",
+		"panel.goWeekly": "Weekly quota",
+		"panel.goMonthly": "Monthly quota",
+		"panel.goUnavailable": "opencode Go quota unavailable",
+		"line.go": "Go 5h {h5} · wk {week} · mo {month}",
+			"settings.kimiCookie.title": "Kimi web token (monthly quota)",
+			"settings.kimiCookie.description": "Paste the refresh_token from kimi.com (F12 → Application → Local Storage → kimi.com → refresh_token) to read the monthly membership quota; auto-renewed, stored only in the local settings file",
+			"settings.kimiCookie.placeholder": "Paste the refresh_token value (auto-renewal)",
+			"settings.kimiCookie.save": "Save",
+			"settings.kimiCookie.clear": "Clear",
+			"settings.kimiCookie.configured": "Configured (value hidden)",
+			"settings.kimiCookie.empty": "Not configured",
 			"line.balance": "Balance {amount}",
 			"line.today": "Today {amount}",
 			"line.session": "Session ≈{amount}",
@@ -712,7 +993,14 @@ window.__ModuleLoader__.load({
 				order: 40,
 				locale: NS,
 				inject: () => ({ hooks: { enabled: enabledStore }, setEnabled })
-			}, UsageToggleRow));
+			}, UsageToggleRow));			ctx.slots.inject("settings.general.item", () => ctx.slots.register({
+				name: "settings.general.item",
+				id: "kimi-cookie-input",
+				order: 41,
+				locale: NS,
+				inject: () => ({})
+			}, KimiCookieRow));
+
 		}
 		exports.apply = apply;
 		exports.inject = inject;
